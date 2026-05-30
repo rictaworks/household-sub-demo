@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}マイサブスク | くらしのていき便{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1><i class="fa-solid fa-rotate"></i> マイサブスク</h1>
+  <p>現在のサブスクリプション一覧です。</p>
+</section>
+
+{% if subs %}
+<div class="subs-list">
+  {% for sub in subs %}
+  <article class="sub-card status-{{ sub.status }}">
+    <div class="sub-info">
+      <h2 class="sub-name">{{ sub.product.name }}</h2>
+      <p class="sub-detail">
+        {{ sub.quantity }}個 / {{ sub.interval_days }}日ごとに配送
+      </p>
+      <p class="sub-price">
+        &yen;{{ "{:,}".format(sub.product.price * sub.quantity) }}（税抜）&ensp;
+        (&yen;{{ "{:,}".format((sub.product.price * sub.quantity * 1.10) | int) }} 税込)
+      </p>
+      <p class="sub-status">
+        {% if sub.status == "active" %}
+          <span class="badge active"><i class="fa-solid fa-circle-check"></i> 配送中</span>
+          次回配送予定：{{ sub.next_delivery }}
+        {% elif sub.status == "paused" %}
+          <span class="badge paused"><i class="fa-solid fa-circle-pause"></i> 停止中</span>
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="sub-actions">
+      {% if sub.status == "active" %}
+        <form action="{{ url_for('sub_change_interval', sub_id=sub.id) }}" method="post" class="inline-form">
+          <select name="interval_days" onchange="this.form.submit()">
+            {% for d in interval_options %}
+            <option value="{{ d }}" {% if sub.interval_days == d %}selected{% endif %}>{{ d }}日ごと</option>
+            {% endfor %}
+          </select>
+        </form>
+        <form action="{{ url_for('sub_pause', sub_id=sub.id) }}" method="post" class="inline-form">
+          <button type="submit" class="btn btn-warning btn-sm">
+            <i class="fa-solid fa-pause"></i> 一時停止
+          </button>
+        </form>
+      {% elif sub.status == "paused" %}
+        <form action="{{ url_for('sub_resume', sub_id=sub.id) }}" method="post" class="inline-form">
+          <button type="submit" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-play"></i> 再開
+          </button>
+        </form>
+      {% endif %}
+      <form action="{{ url_for('sub_cancel', sub_id=sub.id) }}" method="post" class="inline-form"
+            onsubmit="return confirmCancel()">
+        <button type="submit" class="btn btn-danger btn-sm">
+          <i class="fa-solid fa-ban"></i> 解約
+        </button>
+      </form>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-cart">
+  <i class="fa-solid fa-rotate"></i>
+  <p>現在有効なサブスクリプションはありません。</p>
+  <a href="{{ url_for('index') }}" class="btn btn-primary">
+    <i class="fa-solid fa-store"></i> 商品一覧へ
+  </a>
+</div>
+{% endif %}
+{% endblock %}

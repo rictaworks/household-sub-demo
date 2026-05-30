@@ -18,3 +18,6 @@ WORK/
 ENV/
 DELETE/
 SPEC/household-sub-demo-spec.md
+__pycache__/
+*.pyc
+demo.db
