@@ -8,13 +8,15 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+  <div class="demo-banner">
+    <i class="fa-solid fa-flask"></i> これはデモ版です。データはサーバー再起動時にリセットされる場合があります。
+  </div>
   <header class="site-header">
     <div class="container">
       <a href="{{ url_for('index') }}" class="logo">
         <i class="fa-solid fa-box-open"></i> くらしのていき便
         <span class="badge-demo">DEMO</span>
       </a>
-      <span class="demo-notice">これはデモ版です。データはサーバー再起動時にリセットされる場合があります。</span>
       <nav class="nav-links">
         <a href="{{ url_for('index') }}"><i class="fa-solid fa-store"></i> 商品一覧</a>
         <a href="{{ url_for('cart') }}" class="cart-link">
