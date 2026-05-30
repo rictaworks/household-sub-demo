@@ -359,3 +359,30 @@ select:focus, input:focus { outline: 2px solid var(--clr-primary); outline-offse
 .alert ul { margin: 0; padding-left: 1.25rem; }
 
 .empty-msg { color: var(--clr-muted); }
+
+/* ── お問い合わせ吹き出しボタン ────────────────────────────────────── */
+.contact-bubble {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--clr-primary);
+  color: #fff;
+  padding: 0.65rem 1.1rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(37,99,235,.4);
+  text-decoration: none;
+  transition: background .15s, transform .15s, box-shadow .15s;
+}
+.contact-bubble:hover {
+  background: var(--clr-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37,99,235,.5);
+  text-decoration: none;
+}
+.contact-bubble i { font-size: 1.1rem; }
