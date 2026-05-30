@@ -1,6 +1,9 @@
-# API 仕様書
+# API 仕様書（デモ版）
 
 最終更新: 2026-05-30
+
+> **エディション**: デモ版
+> バックエンド: Python / Flask — セッションベース・認証なし・SQLite
 
 ---
 
@@ -8,174 +11,204 @@
 
 | 項目 | 内容 |
 |------|------|
-| Base URL（開発） | `http://localhost:3001/api/v1` |
-| Base URL（本番） | `https://api.household-sub.rictaworks.jp/api/v1` |
-| 認証方式 | Bearer Token（JWT）/ セッション Cookie |
-| レスポンス形式 | JSON |
+| Base URL（開発） | `http://localhost:5000` |
+| Base URL（デプロイ） | Render / Railway（無料枠） |
+| 認証方式 | なし（Cookie セッション） |
+| レスポンス形式 | HTML（Jinja2 テンプレート） |
 | 文字コード | UTF-8 |
 
 ---
 
-## 認証
+## 商品一覧
 
-### GET /auth/google
+### GET /
 
-Google OAuth 認証を開始します。
-
-### GET /auth/google/callback
-
-Google OAuth コールバック。認証成功後、JWT を発行してフロントエンドへリダイレクトします。
-
-### DELETE /auth/logout
-
-セッションを破棄してログアウトします。
-
----
-
-## ヘルスチェック
-
-### GET /health
-
-サーバーの稼働状態を確認します。
-
-**レスポンス:**
-```json
-{
-  "status": "ok",
-  "db": "connected",
-  "version": "1.0.0",
-  "env": "production"
-}
-```
-
----
-
-## サブスクリプション
-
-### GET /subscriptions
-
-世帯のサブスクリプション一覧を取得します。
+商品一覧ページを表示します。
 
 **クエリパラメータ:**
+
 | パラメータ | 型 | 説明 |
 |----------|-----|------|
-| `page` | integer | ページ番号（デフォルト: 1） |
-| `per_page` | integer | 件数（デフォルト: 20） |
-| `category` | string | カテゴリフィルター |
+| `category` | string | カテゴリ slug でフィルタ（`kitchen` / `bathroom` / `toilet` / `other`） |
+
+**レスポンス:** 200 OK — 商品一覧 HTML
+
+---
+
+## カート
+
+### GET /cart
+
+カート内容を表示します。セッションに紐づく `cart_items` を取得。
+
+**レスポンス:** 200 OK — カート HTML
+
+---
+
+### POST /cart/add
+
+カートに商品を追加します。
+
+**フォームパラメータ:**
+
+| パラメータ | 型 | 必須 | バリデーション |
+|----------|-----|------|-------------|
+| `product_id` | integer | ✓ | 存在する商品・在庫あり |
+| `quantity` | integer | ✓ | 1〜5 |
+| `interval_days` | integer | ✓ | 14 / 30 / 60 のいずれか |
 
 **レスポンス:**
-```json
-{
-  "subscriptions": [
-    {
-      "id": 1,
-      "name": "Netflix",
-      "amount": 1490,
-      "currency": "JPY",
-      "billing_cycle": "monthly",
-      "next_billing_date": "2026-06-15",
-      "category": "entertainment"
-    }
-  ],
-  "total": 10,
-  "page": 1,
-  "per_page": 20
-}
-```
+- 302 Redirect → `/cart`（成功）
+- 400 Bad Request（バリデーションエラー・在庫なし）
 
-### POST /subscriptions
-
-新規サブスクリプションを登録します。
-
-**リクエストボディ:**
-```json
-{
-  "subscription": {
-    "name": "Netflix",
-    "amount": 1490,
-    "currency": "JPY",
-    "billing_cycle": "monthly",
-    "next_billing_date": "2026-06-15",
-    "category": "entertainment"
-  }
-}
-```
-
-### GET /subscriptions/:id
-
-指定したサブスクリプションの詳細を取得します。
-
-### PATCH /subscriptions/:id
-
-サブスクリプション情報を更新します。
+**備考:** 同一商品・同一間隔が既にカートにある場合は数量を加算（上限 5）
 
 ---
 
-## 世帯
+### POST /cart/update
 
-### GET /households
+カートアイテムの数量を変更します。
 
-世帯情報とメンバー一覧を取得します。
+**フォームパラメータ:**
 
-### POST /households/members
+| パラメータ | 型 | 必須 | バリデーション |
+|----------|-----|------|-------------|
+| `item_id` | integer | ✓ | 自セッション所有のアイテム |
+| `quantity` | integer | ✓ | 1〜5 |
 
-世帯に新しいメンバーを招待します。
-
-**リクエストボディ:**
-```json
-{
-  "member": {
-    "email": "member@example.com",
-    "role": "member"
-  }
-}
-```
+**レスポンス:**
+- 302 Redirect → `/cart`
+- 400 / 404
 
 ---
 
-## 統計
+### POST /cart/remove
 
-### GET /analytics/summary
+カートアイテムを削除します。
 
-月次支出サマリーを取得します。
+**フォームパラメータ:**
 
-**クエリパラメータ:**
-| パラメータ | 型 | 説明 |
+| パラメータ | 型 | 必須 |
 |----------|-----|------|
-| `year` | integer | 年（例: 2026） |
-| `month` | integer | 月（例: 5） |
+| `item_id` | integer | ✓ |
+
+**レスポンス:** 302 Redirect → `/cart`
 
 ---
 
-## ユーザー
+## 注文確定
 
-### GET /users/me
+### GET /checkout
 
-ログイン中のユーザー情報を取得します。
+注文フォームを表示します。カートが空の場合は `/` へリダイレクト。
 
-### PATCH /users/me
-
-ユーザー情報を更新します。
+**レスポンス:** 200 OK — 注文フォーム HTML
 
 ---
 
-## エラーレスポンス形式
+### POST /checkout
 
-```json
-{
-  "error": {
-    "code": "UNAUTHORIZED",
-    "message": "認証が必要です",
-    "details": {}
-  }
-}
-```
+注文を確定してサブスクリプションを登録します。
 
-| HTTP ステータス | エラーコード | 説明 |
-|--------------|-----------|------|
-| 400 | `BAD_REQUEST` | リクエスト不正 |
-| 401 | `UNAUTHORIZED` | 未認証 |
-| 403 | `FORBIDDEN` | アクセス権限なし |
-| 404 | `NOT_FOUND` | リソースが存在しない |
-| 422 | `UNPROCESSABLE_ENTITY` | バリデーションエラー |
-| 500 | `INTERNAL_SERVER_ERROR` | サーバー内部エラー |
+**フォームパラメータ:**
+
+| パラメータ | 型 | 必須 | バリデーション |
+|----------|-----|------|-------------|
+| `name` | string | ✓ | 1〜100 文字 |
+| `address` | string | ✓ | 1〜255 文字 |
+| `phone` | string | ✓ | 数字のみ・10〜11 桁 |
+| `website` | string | — | ハニーポット：値があれば 400 を返す |
+
+**成功時の処理:**
+1. `orders` レコードを作成
+2. カートアイテムごとに `subscriptions` レコードを作成（`status=active`、`next_delivery=注文日+interval_days`）
+3. `cart_items` を全削除
+4. 302 Redirect → `/checkout/complete`
+
+**エラー時:**
+- 400 — ハニーポット検知
+- 200 — バリデーションエラー（フォーム再表示）
+
+---
+
+### GET /checkout/complete
+
+注文完了画面を表示します。
+
+**レスポンス:** 200 OK
+
+---
+
+## マイサブスク
+
+### GET /my-subs
+
+自セッションのサブスクリプション一覧（`cancelled` 除く）を表示します。
+
+**レスポンス:** 200 OK — マイサブスク HTML
+
+---
+
+### POST /my-subs/\<id\>/pause
+
+サブスクリプションを一時停止します。
+
+**条件:** `status == "active"` であること
+
+**処理:** `status = "paused"`, `next_delivery = NULL`
+
+**レスポンス:**
+- 302 Redirect → `/my-subs`
+- 400 — ステータス不正
+- 404 — 他セッションのリソース
+
+---
+
+### POST /my-subs/\<id\>/resume
+
+一時停止中のサブスクリプションを再開します。
+
+**条件:** `status == "paused"` であること
+
+**処理:** `status = "active"`, `next_delivery = 再開日 + interval_days`
+
+**レスポンス:** 302 Redirect → `/my-subs`
+
+---
+
+### POST /my-subs/\<id\>/cancel
+
+サブスクリプションを解約します（論理削除）。
+
+**処理:** `status = "cancelled"`
+
+**レスポンス:** 302 Redirect → `/my-subs`
+
+---
+
+### POST /my-subs/\<id\>/change-interval
+
+配送間隔を変更します。
+
+**フォームパラメータ:**
+
+| パラメータ | 型 | 必須 | バリデーション |
+|----------|-----|------|-------------|
+| `interval_days` | integer | ✓ | 14 / 30 / 60 のいずれか |
+
+**処理:** `interval_days` を更新、`next_delivery = 変更日 + 新 interval_days`
+
+**レスポンス:**
+- 302 Redirect → `/my-subs`
+- 400 — 間隔値不正・ステータス不正
+
+---
+
+## エラーレスポンス
+
+HTML エラーページ（`templates/error.html`）を返します。
+
+| HTTP ステータス | 説明 |
+|--------------|------|
+| 400 | バリデーションエラー・ハニーポット検知・不正なステータス遷移 |
+| 404 | リソースが存在しない・他セッションのリソース |
