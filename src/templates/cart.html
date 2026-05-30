@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}カート | くらしのていき便{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1><i class="fa-solid fa-cart-shopping"></i> カート</h1>
+</section>
+
+{% if items %}
+<div class="cart-layout">
+  <div class="cart-items">
+    {% for item in items %}
+    <article class="cart-item">
+      <div class="cart-item-info">
+        <p class="item-name">{{ item.product.name }}</p>
+        <p class="item-price">&yen;{{ "{:,}".format(item.product.price) }} &times; {{ item.quantity }}個
+          = <strong>&yen;{{ "{:,}".format(item.subtotal()) }}</strong></p>
+        <p class="item-interval"><i class="fa-solid fa-rotate"></i> {{ item.interval_days }}日ごとに配送</p>
+      </div>
+      <div class="cart-item-actions">
+        <form action="{{ url_for('cart_update') }}" method="post" class="inline-form">
+          <input type="hidden" name="item_id" value="{{ item.id }}">
+          <select name="quantity" onchange="this.form.submit()">
+            {% for q in range(1, 6) %}
+            <option value="{{ q }}" {% if item.quantity == q %}selected{% endif %}>{{ q }}個</option>
+            {% endfor %}
+          </select>
+        </form>
+        <form action="{{ url_for('cart_remove') }}" method="post" class="inline-form">
+          <input type="hidden" name="item_id" value="{{ item.id }}">
+          <button type="submit" class="btn btn-danger btn-sm">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </form>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <aside class="cart-summary">
+    <h2>注文サマリー</h2>
+    <dl>
+      <dt>小計（税抜）</dt><dd>&yen;{{ "{:,}".format(subtotal) }}</dd>
+      <dt>消費税（10%）</dt><dd>&yen;{{ "{:,}".format(total - subtotal) }}</dd>
+      <dt class="total-label">合計（税込）</dt><dd class="total-price">&yen;{{ "{:,}".format(total) }}</dd>
+    </dl>
+    <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-lg">
+      <i class="fa-solid fa-credit-card"></i> 注文手続きへ
+    </a>
+    <a href="{{ url_for('index') }}" class="btn btn-outline btn-lg">
+      <i class="fa-solid fa-arrow-left"></i> 買い物を続ける
+    </a>
+  </aside>
+</div>
+{% else %}
+<div class="empty-cart">
+  <i class="fa-solid fa-cart-shopping"></i>
+  <p>カートに商品がありません。</p>
+  <a href="{{ url_for('index') }}" class="btn btn-primary">
+    <i class="fa-solid fa-store"></i> 商品一覧へ
+  </a>
+</div>
+{% endif %}
+{% endblock %}
