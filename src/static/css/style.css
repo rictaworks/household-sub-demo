@@ -70,6 +70,7 @@ a:hover { text-decoration: underline; }
 .nav-links { display: flex; gap: 1.25rem; align-items: center; }
 .nav-links a { color: #fff; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem; }
 .nav-links a:hover { text-decoration: underline; }
+.back-link { opacity: 0.6; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 1.25rem; }
 
 .cart-link { position: relative; }
 .cart-badge {
