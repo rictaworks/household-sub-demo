@@ -1,0 +1,20 @@
+.env
+.env.local
+.env.*.local
+node_modules/
+.next/
+dist/
+tmp/
+log/
+*.log
+.DS_Store
+
+# Claude / プロジェクト管理ディレクトリ（CLAUDE.md / README.md 以外）
+.claude/
+TASKS/
+DEBUG/
+CLIENT/
+WORK/
+ENV/
+DELETE/
+SPEC/household-sub-demo-spec.md
