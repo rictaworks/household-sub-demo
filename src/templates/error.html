@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}エラー {{ code }} | くらしのていき便{% endblock %}
+
+{% block content %}
+<div class="complete-wrap">
+  <div class="complete-icon error-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+  <h1>エラー {{ code }}</h1>
+  <p>{{ message }}</p>
+  <div class="complete-actions">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">
+      <i class="fa-solid fa-house"></i> トップに戻る
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}商品一覧 | くらしのていき便{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1><i class="fa-solid fa-store"></i> 商品一覧</h1>
+  <p>家庭用消耗品を定期購入で賢く節約。お気に入りの商品をサブスクに追加しましょう。</p>
+</section>
+
+<div class="filter-bar">
+  <a href="{{ url_for('index') }}"
+     class="filter-btn {% if not selected_slug %}active{% endif %}">すべて</a>
+  {% for cat in categories %}
+  <a href="{{ url_for('index', category=cat.slug) }}"
+     class="filter-btn {% if selected_slug == cat.slug %}active{% endif %}">
+    {{ cat.name }}
+  </a>
+  {% endfor %}
+</div>
+
+<div class="product-grid">
+  {% for product in products %}
+  <article class="product-card {% if not product.in_stock %}out-of-stock{% endif %}">
+    <div class="product-icon">
+      <i class="fa-solid fa-{% if product.category.slug == 'kitchen' %}kitchen-set{% elif product.category.slug == 'bathroom' %}shower{% elif product.category.slug == 'toilet' %}toilet{% else %}box-archive{% endif %}"></i>
+    </div>
+    <div class="product-info">
+      <span class="product-category">{{ product.category.name }}</span>
+      <h2 class="product-name">{{ product.name }}</h2>
+      <p class="product-price">
+        &yen;{{ "{:,}".format(product.price) }}
+        <span class="price-note">（税抜）</span>
+      </p>
+      {% if not product.in_stock %}
+        <p class="stock-badge out">在庫なし</p>
+      {% else %}
+        <p class="stock-badge in">在庫あり</p>
+        <form action="{{ url_for('cart_add') }}" method="post" class="add-form">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <div class="form-row">
+            <label>数量</label>
+            <select name="quantity">
+              {% for q in range(1, 6) %}
+              <option value="{{ q }}">{{ q }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-row">
+            <label>配送間隔</label>
+            <select name="interval_days">
+              {% for d in interval_options %}
+              <option value="{{ d }}">{{ d }}日ごと</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-cart-plus"></i> カートに追加
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </article>
+  {% else %}
+  <p class="empty-msg">該当する商品がありません。</p>
+  {% endfor %}
+</div>
+{% endblock %}
