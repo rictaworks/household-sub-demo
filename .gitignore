@@ -21,3 +21,7 @@ SPEC/household-sub-demo-spec.md
 __pycache__/
 *.pyc
 demo.db
+
+# Workers 版（worker/）のローカル生成物
+worker/.wrangler/
+worker/.dev.vars
