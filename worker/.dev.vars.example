@@ -1,0 +1,4 @@
+# ローカル開発（npm run dev）で必要な変数名の一覧。
+# 値は各自が worker/.dev.vars に書く（.dev.vars は Git 管理外）。このファイルに値を書かないこと。
+# 本番は wrangler secret put SESSION_SECRET --env production で登録する。
+SESSION_SECRET=

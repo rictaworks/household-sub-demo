@@ -1,0 +1,55 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "household-sub-demo",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "account_id": "9c5183bedab008ccef3581056752fa6f",
+  // 既定は production（設定漏れで本番が開発扱いにならないように）。開発は npm run dev（--var APP_ENV:development）で切り替える。
+  "vars": {
+    "APP_ENV": "production"
+  },
+  // フロントエンド（静的ファイル）は Workers Assets で配信し、/api/* のみ Worker を先に実行する。
+  // 存在しないパス（/cart など）は SPA として index.html を返す。
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  // D1 はまだ作成していない。作成後に database_id を差し替える（作成コマンド: wrangler d1 create household_sub_demo）。
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "household_sub_demo",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // JST 03:00 = UTC 18:00（前日）の日次リセット。マスタ（categories・products）は対象外。
+  "triggers": {
+    "crons": ["0 18 * * *"]
+  },
+  "env": {
+    "production": {
+      "name": "household-sub-demo",
+      "vars": {
+        "APP_ENV": "production"
+      },
+      "assets": {
+        "directory": "./public",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/api/*"]
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "household_sub_demo",
+          "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "triggers": {
+        "crons": ["0 18 * * *"]
+      }
+    }
+  }
+}

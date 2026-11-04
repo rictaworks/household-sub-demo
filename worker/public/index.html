@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- CSP の本体は public/_headers（frame-ancestors はヘッダでのみ有効）。ここはヘッダが効かない環境向けの二重化。 -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com; base-uri 'self'; form-action 'self'; object-src 'none'">
+  <title>くらしのていき便</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Google tag (gtag.js)。インライン script を使わず CSP を保つため外部ファイルに分ける -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C04W1XKS16"></script>
+  <script src="/js/analytics.js"></script>
+</head>
+<body>
+  <div class="demo-banner">
+    <i class="fa-solid fa-flask"></i> これはデモ版です。データは毎日 JST 03:00 にリセットされます。
+  </div>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">
+        <i class="fa-solid fa-box-open"></i> くらしのていき便
+        <span class="badge-demo">DEMO</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/"><i class="fa-solid fa-store"></i> 商品一覧</a>
+        <a href="/cart" class="cart-link">
+          <i class="fa-solid fa-cart-shopping"></i> カート
+          <span class="cart-badge" id="cart-badge" hidden>0</span>
+        </a>
+        <a href="/my-subs"><i class="fa-solid fa-rotate"></i> マイサブスク</a>
+        <a href="https://rictaworks.jp/#demos" class="back-link"><i class="fa-solid fa-arrow-left"></i> デモ一覧へ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-content" id="app">
+    <p class="empty-msg">読み込み中です。</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>くらしのていき便 &mdash; デモ版</p>
+    </div>
+  </footer>
+
+  <a href="https://rictaworks.jp/" target="_blank" rel="noopener" class="contact-bubble">
+    <i class="fa-solid fa-comment-dots"></i>
+    <span>ご相談はこちら</span>
+  </a>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
